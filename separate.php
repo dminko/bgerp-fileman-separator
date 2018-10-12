@@ -49,6 +49,7 @@ $dbRes = $link->query("select md5, file_len from fileman_data");
 $totalSize = 0;
 $totalFiles = 0;
 $copied = 0;
+$skipped = 0;
 
 while ( $fData = $dbRes->fetch_array(MYSQLI_ASSOC) ) {
     $totalSize += $fData['file_len'];
@@ -60,18 +61,26 @@ while ( $fData = $dbRes->fetch_array(MYSQLI_ASSOC) ) {
             //die (DESTINATION_DIR . '/' . $fileName['dir']);
             mkdir(DESTINATION_DIR . '/' . $fileName['dir'] . '/', 0777, TRUE);
         }
-        if (copy(UPLOADS_BASE_PATH . '/' . $fileName['dir'] .'/' . $fileName['name'], DESTINATION_DIR . '/' . $fileName['dir'] .'/' . $fileName['name'])) {
-            $copied++;
-            } else {
-                $err[] = "Не можа да копира: " . '/' . $fileName['dir'] .'/' . $fileName['name'];
+        if (!is_file(DESTINATION_DIR . '/' . $fileName['dir'] .'/' . $fileName['name'])) {
+            if (copy(UPLOADS_BASE_PATH . '/' . $fileName['dir'] .'/' . $fileName['name'], DESTINATION_DIR . '/' . $fileName['dir'] .'/' . $fileName['name'])) {
+                $copied++;
+                } else {
+                    $err[] = "Не можа да копира: " . '/' . $fileName['dir'] .'/' . $fileName['name'];
+            }
+        } else {
+            $skipped++;
         }
     } elseif (is_file(UPLOADS_BASE_PATH . '/' . $fileName['oldName'])) {
         // Файла е от старото наименоване - копираме го в новата дестинация
         // в oldName не е необходимо да създаваме директории
-        if (copy(UPLOADS_BASE_PATH . '/' . $fileName['oldName'], DESTINATION_DIR . '/' . $fileName['oldName'])) {
-            $copied++;
+        if (!is_file(DESTINATION_DIR . '/' . $fileName['oldName'])) {
+            if (copy(UPLOADS_BASE_PATH . '/' . $fileName['oldName'], DESTINATION_DIR . '/' . $fileName['oldName'])) {
+                $copied++;
+            } else {
+                $err[] = "Не можа да копира: " . $fileName['oldName'];
+            }
         } else {
-            $err[] = "Не можа да копира: " . $fileName['oldName'];
+            $skipped++;
         }
         
     } else {
@@ -84,6 +93,7 @@ while ( $fData = $dbRes->fetch_array(MYSQLI_ASSOC) ) {
 echo ('Общо файлове : ' . $totalFiles . PHP_EOL);
 echo ('Общо размер  : ' . $totalSize . PHP_EOL);
 echo ('Общо копирани: ' . $copied . PHP_EOL . PHP_EOL . PHP_EOL);
+echo ('Общо пропуснати: ' . $skipped . PHP_EOL . PHP_EOL . PHP_EOL);
 if (!empty($err)) {
     echo ('Грешки :');    
     print_r($err);
