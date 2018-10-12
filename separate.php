@@ -50,6 +50,7 @@ $totalSize = 0;
 $totalFiles = 0;
 $copied = 0;
 $skipped = 0;
+$err = [];
 
 while ( $fData = $dbRes->fetch_array(MYSQLI_ASSOC) ) {
     $totalSize += $fData['file_len'];
