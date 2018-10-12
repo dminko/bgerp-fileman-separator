@@ -91,8 +91,8 @@ while ( $fData = $dbRes->fetch_array(MYSQLI_ASSOC) ) {
 }
 
 echo ('Общо файлове : ' . $totalFiles . PHP_EOL);
-echo ('Общо размер  : ' . $totalSize . PHP_EOL);
-echo ('Общо копирани: ' . $copied . PHP_EOL . PHP_EOL . PHP_EOL);
+echo ('Общо размер  : ' . round($totalSize/1073741824, 2) . "GB" . PHP_EOL);
+echo ('Общо копирани: ' . $copied . PHP_EOL);
 echo ('Общо пропуснати: ' . $skipped . PHP_EOL . PHP_EOL . PHP_EOL);
 if (!empty($err)) {
     echo ('Грешки :');    
